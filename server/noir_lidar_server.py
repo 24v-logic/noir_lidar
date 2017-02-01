@@ -15,21 +15,8 @@ figure = []
 class shared_data_acquisition_class():
 	def __init__(self):
 		print("Data Acquisition Service is running. . .")
-'''
-	def acquire(self,new_data):  #function to send numpy array to server
-		an_array = np.load(StringIO(new_data))['frame']
 
-		o = 'outfile'
-
-		if isinstance(an_array,np.ndarray):
-			print"saving array as %s" % o
-			np.save(o,an_array)
-			
-		else:
-			print("not a numpy array")
-			print(type(self.data))
-'''
-	def acquire_frames(self,outfile,new_data):  #function to save captured camera frames
+	def acquire_frames(self,outfile,new_data):
 		an_array = np.load(StringIO(new_data))['frame']
 
 		o = outfile
@@ -41,16 +28,16 @@ class shared_data_acquisition_class():
 			print("not a numpy array")
 			print(type(self.data))
 		
-	def get_img(self,data):  #function to plot image on server
+	def get_img(self,data):
 		img = np.load(StringIO(data))['frame']
 		imgplot = plt.imshow(img)
 		print"image plotted"
 	
-	def get_string(self,string):  #function to write string to server
+	def get_string(self,string):
 		f = open('string.txt','w')
 		f.write(string)
 
-	def what_is(self, thing): #function to get type of data passed
+	def what_is(self, thing):
 		print(type(thing))
 
 s = shared_data_acquisition_class()
@@ -65,7 +52,7 @@ class shared_data_acquisition_service(rpyc.Service):
 	def exposed_get_shared(self):
 		return s
 
-def arbitrary_threaded_task( threadName, delay): #arbitrary threaded task to print timestamp
+def arbitrary_threaded_task( threadName, delay):
 	count = 0
 	while count < 100:
 		time.sleep(delay)

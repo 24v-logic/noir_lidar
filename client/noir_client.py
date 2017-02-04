@@ -75,13 +75,16 @@ def double_capture(n_frames):
 	try:
 		print('Capturing data')
 		scan_count = 0
-		while scan in lidar.iter_scans() < n_frames:
+		for scan in lidar.iter_scans():
 			with picamera.PiCamera() as camera:
 				with picamera.array.PiRGBArray(camera) as output:
 					camera.resolution = (720,600)
 					camera.capture(output,'rgb')
 					cam_data.append(output.array)
 			lidar_data.append(np.array(scan))
+			scan_count+=1
+			if scan_count > n_frames:
+				break
 		data_array = np.array([cam_data,lidar_data])
 		f = StringIO()
 		np.savez_compressed(f, frame=output.array)

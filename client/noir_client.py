@@ -5,6 +5,7 @@ import picamera.array
 import thread
 import time
 import threading
+from rplidar import RPLidar
 
 from cStringIO import StringIO
 from lidar_get import run
@@ -31,9 +32,9 @@ def capture():
 			np.savez_compressed(f, frame=output.array)
 			f.seek(0)
 			return(f.read())
-			#return output.array
 
-def capture_camera(n):  #capture n frames from camera
+
+def capture_camera(n):
 	print("camera")
 	frames = []
 	with picamera.PiCamera() as camera:
@@ -51,7 +52,7 @@ def capture_camera(n):  #capture n frames from camera
 	print "camera capture done"
 	return f.read()
 			
-def capture_lidar(n): #capture n frames from lidar
+def capture_lidar(n):
 	print("lidar")
 	lidar_data = run(n)
 	f = StringIO()
@@ -60,20 +61,41 @@ def capture_lidar(n): #capture n frames from lidar
 	print "lidar capture done"
 	return f.read()
 
-def payloadize(npyarray): #payloadize numpy array to send
+def payloadize(npyarray):
 	npyarray = np.array(npyarray)
 	f = StringIO()
 	np.savez_compressed(f,frame=npyarray)
 	f.seek(0)
 	return f.read()
 
-HOSTNAME = '' #your hostname goes here
+def double_capture(n_frames):
+	lidar = RPLidar('/dev/ttyUSB0')
+	lidar_data = []
+	cam_data = []
+	try:
+		print('Capturing data')
+		scan_count = 0
+		while scan in lidar.iter_scans() < n_frames:
+			with picamera.PiCamera() as camera:
+				with picamera.array.PiRGBArray(camera) as output:
+					camera.resolution = (720,600)
+					camera.capture(output,'rgb')
+					cam_data.append(output.array)
+			lidar_data.append(np.array(scan))
+		data_array = np.array([cam_data,lidar_data])
+		f = StringIO()
+		np.savez_compressed(f, frame=output.array)
+		f.seek(0)
+		return(f.read())
+
+hostname = '192.168.1.5'
 port = 18861
 
 if __name__=='__main__':
 	c = rpyc.connect(hostname,port)
 	service = c.root.get_shared()
 	while True:
+		service.acquire_frames('double_capture',double_capture(3))
 		#service.acquire_frames('camera_frames', capture_camera(10))
 		#service.acquire_frames('lidar_frames', capture_lidar(10))
 		

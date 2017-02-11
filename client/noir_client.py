@@ -32,10 +32,12 @@ port = 18861
 if __name__=='__main__':
 	c = rpyc.connect(hostname,port)
 	service = c.root.get_shared()
-	while True:
-		lidar_frames, camera_frames = noir_lidar.hi_speed_capture(10,1)
+	times = 20
+	for n in range(times):
+		
+		lidar_frames, camera_frames = noir_lidar.variable_capture(100,3,(n+1)*64,(n+1)*48)
 		lidar_payload = payloadize(lidar_frames)
 		camera_payload = payloadize(camera_frames)
-		service.acquire_frames('lidar_frames2', lidar_payload)
-		service.acquire_frames('camera_frames2', camera_payload)
-		break
+		service.acquire_frames('test1_lidar_frames' + str(n), lidar_payload)
+		service.acquire_frames('test1_camera_frames' + str(n), camera_payload)
+		

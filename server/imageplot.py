@@ -10,8 +10,9 @@ ax1 = fig.add_subplot(1,2,1)
 
 ax2 = plt.subplot(122,projection='polar')
 
-camera_frames = np.load('camera_frames.npy')
-lidar_frames = np.load('lidar_frames.npy')
+
+camera_frames = np.load('camera_frames2.npy')
+lidar_frames = np.load('lidar_frames2.npy')
 rotated_camera_frames = []
 lum_frames = []
 
@@ -34,11 +35,11 @@ for frame in range(len(lidar_frames)):
 	lidar_frame = np.array([[thetas],[rs]])
 	lidar_im = plt.scatter(thetas,rs)
 	lidar_ims.append(lidar_im)
-	
+
 ani1 = animation.ArtistAnimation(fig,ims,interval=50, blit=True, repeat_delay=0)
 #ani2 = animation.ArtistAnimation(fig,lidar_ims,interval=50,repeat_delay=0)
 plt.show()
-ani1.save('fancy_lidar.mp4')
+ani1.save('capture2.mp4')
 '''
 class SubplotAnimation(animation.TimedAnimation):
 	def __init__(self):
@@ -52,4 +53,4 @@ class SubplotAnimation(animation.TimedAnimation):
 		i = framedata
 		head = i-1
 		head_slice = (self.t > self.t[i]-1) & (self.t < self.t[i])
-'''		
+'''

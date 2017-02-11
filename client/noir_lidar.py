@@ -40,6 +40,34 @@ def image_capture(n):
 				output.truncate(0)
 	return np.array(camera_frames)
 
+def variable_capture(n,m,i,j):
+	lidar = RPLidar(PORT_NAME)
+	lidar_frames = []
+	image_frames = []
+	try:
+		print('Recording lidar scans and camera images. . .')
+		scan_count = 0
+		for scan in lidar.iter_scans():
+			with picamera.PiCamera() as camera:
+				with picamera.array.PiRGBArray(camera) as output:
+					for i in range(m):
+						camera.resolution=(i,j)
+						camera.capture(output,'rgb')
+						image_frames.append(output.array)
+						output.truncate(0)
+			lidar_frames.append(np.array(scan))
+			scan_count += 1
+			if scan_count > n:
+				lidar.stop()
+				lidar.disconnect()
+				return np.array(lidar_frames), np.array(image_frames)
+				break
+
+	except KeyboardInterrupt:
+		print('Stopping')
+	lidar.stop()
+	lidar.disconnect()
+
 def hi_speed_capture(n,m):
 	lidar = RPLidar(PORT_NAME)
 	lidar_frames = []

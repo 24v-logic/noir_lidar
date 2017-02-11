@@ -33,9 +33,9 @@ if __name__=='__main__':
 	c = rpyc.connect(hostname,port)
 	service = c.root.get_shared()
 	while True:
-		lidar_frames, camera_frames = noir_lidar.double_capture(10)
+		lidar_frames, camera_frames = hi_speed_capture(10,3)
 		lidar_payload = payloadize(lidar_frames)
 		camera_payload = payloadize(camera_frames)
-		service.acquire_frames('lidar_frames', lidar_payload)
-		service.acquire_frames('camera_frames', camera_payload)
+		service.acquire_frames('lidar_frames1', lidar_payload)
+		service.acquire_frames('camera_frames1', camera_payload)
 		break

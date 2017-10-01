@@ -6,7 +6,8 @@ import threading
 import multiprocessing as mp
 '''rpyc server for sensor data collection'''
 import rpyc
-
+import picamera
+import picamera.array
 rpyc.core.protocol.DEFAULT_CONFIG['allow_pickle'] = True
 figure = []
 
@@ -35,13 +36,34 @@ class data_collector():
 	def test(self):
 		print("test")
 
+	def send_images(self,n):
+		image_array = self.capture_images(n)
+		f = StringIO()
+		np.savez_compressed(f, frame=image_array)
+		f.seek(0)
+		return f.read()
+
 	def send_random(self):
-		npyarray = np.random.rand(10,10)
+		npyarray = np.random.rand(10,10,4)
 		f = StringIO()
 		np.savez_compressed(f, frame=npyarray)
 		f.seek(0)
 		return f.read()
 
+	def capture_images(self,n):
+		camera_frames = []
+		with picamera.PiCamera() as camera:
+			with picamera.array.PiRGBArray(camera) as output:
+				for i in range(n):
+					camera.resolution = (640,480)
+					camera.capture(output, 'bgr')
+					camera_frames.append(output.array)
+					output.truncate(0)
+					time.sleep(0.05)
+					print("capture %d" % i)
+				print("captures done")
+		return np.array(camera_frames)
+	
 s = shared_data_acquisition_class()
 
 d = data_collector()
@@ -80,7 +102,7 @@ if __name__=='__main__':
 	print("Starting main...")
 	from rpyc.utils.server import ThreadedServer
 	'''start threaded rpyc server'''
-	t = ThreadedServer(data_collector_service,hostname='127.0.0.1', port=18861,protocol_config={"allow_public_attrs": True})
+	t = ThreadedServer(data_collector_service, port=18861,protocol_config={"allow_public_attrs": True})
 
 	try:
 		print("Starting threads...")

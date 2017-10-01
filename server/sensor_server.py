@@ -1,33 +1,14 @@
-import thread
 import time
 import numpy as np
 from cStringIO import StringIO
 import threading
-import multiprocessing as mp
 '''rpyc server for sensor data collection'''
 import rpyc
 import picamera
 import picamera.array
+
 rpyc.core.protocol.DEFAULT_CONFIG['allow_pickle'] = True
 figure = []
-
-class shared_data_acquisition_class():
-	def __init__(self):
-		print("Data Acquisition Service is running. . .")
-
-	'''
-	def acquire_frames(self,outfile,new_data):
-		an_array = np.load(StringIO(new_data))['frame']
-
-		o = outfile
-
-		if isinstance(an_array,np.ndarray):
-			print"saving array as %s" % o
-			np.save(o,an_array)
-		else:
-			print("not a numpy array")
-			print(type(self.data))
-	'''
 
 class data_collector():
 	def __init__(self):
@@ -37,7 +18,7 @@ class data_collector():
 		print("test")
 
 	def send_images(self,n):
-		image_array = self.capture_images(n)
+		image_array = self.capture_images(n,1/30)
 		f = StringIO()
 		np.savez_compressed(f, frame=image_array)
 		f.seek(0)
@@ -50,38 +31,26 @@ class data_collector():
 		f.seek(0)
 		return f.read()
 
-	def capture_images(self,n):
+	def capture_images(self,n,delay):
 		camera_frames = []
 		with picamera.PiCamera() as camera:
 			with picamera.array.PiRGBArray(camera) as output:
 				for i in range(n):
-					camera.resolution = (640,480)
+					camera.resolution = (320,240)
 					camera.capture(output, 'bgr')
 					camera_frames.append(output.array)
 					output.truncate(0)
-					time.sleep(0.05)
+					time.sleep(delay)
 					print("capture %d" % i)
 				print("captures done")
 		return np.array(camera_frames)
-	
-s = shared_data_acquisition_class()
 
 d = data_collector()
-
-class shared_data_acquisition_service(rpyc.Service):
-	def on_connect(self):
-		print('connected')
-
-	def on_disconnect(self):
-		print('disconnected')
-
-	def exposed_get_shared(self):
-		return s
 
 class data_collector_service(rpyc.Service):
 	def on_connect(self):
 		print('connected')
-	
+
 	def on_disconnect(self):
 		print('disconnected')
 
@@ -115,4 +84,3 @@ if __name__=='__main__':
 
 	while 1:
 		pass
-

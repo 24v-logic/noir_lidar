@@ -45,4 +45,5 @@ if __name__=='__main__':
 		#plt.show()
 		#raw_input("...")
 		image_proc(my_images)
+		np.save("my_images", my_images)
 		print("done")

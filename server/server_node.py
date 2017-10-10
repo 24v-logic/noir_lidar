@@ -58,6 +58,7 @@ class my_node_service(rpyc.Service):
 		return new_node
 
 	def exposed_list_nodes(self):
+		print("Node list:")
 		for node in self.nodelist:
 			print(node.tag)
 

@@ -22,7 +22,7 @@ def get_connection(hostname, port):
 	server = c.root
 	return server
 
-class my_client():
+class client():
 	def __init__(self):
 		self.services = {}
 
@@ -38,7 +38,7 @@ if __name__=='__main__':
 	hostname = '127.0.0.1'
 	port = 18861
 
-	my_client = my_client()
+	my_client = client()
 	print("client initialized", my_client)
 	raw_input("press any key to continue")
 	c1 = rpyc.connect(hostname,port)
@@ -64,25 +64,3 @@ if __name__=='__main__':
 		raw_input("press any key to continue")
 	print("listing nodes on server1")
 	server1.list_nodes()
-
-	'''
-	port = 18862
-	c2 = rpyc.connect(hostname,port)
-	server2= c2.root
-	my_client.add_shared_service(server2.get_shared())
-	for service_key in my_client.services:
-		my_client.services[service_key].print_tag()
-		raw_input()
-	'''
-
-	'''
-	c = rpyc.connect(hostname,port)
-	service = c.root.get_shared()
-	times = 1
-	for n in range(times):
-		service.test()
-		service.print_tag()
-		service.print_string("Hello, World")
-		print(service.tag)
-		print("done")
-	'''

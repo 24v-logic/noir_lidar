@@ -18,7 +18,7 @@ def excepthook(*args):
 	print >> STDERR, args
 sys.excepthook = excepthook
 '''
-class my_node():
+class node():
 	def __init__(self,my_tag):
 		self.tag = my_tag
 		print("initializing %s " % my_tag)
@@ -43,7 +43,7 @@ class my_node():
 		print("%s sending random data" % self.tag)
 		return self.tx(random_data)
 
-class my_node_service(rpyc.Service):
+class node_service(rpyc.Service):
 	nodelist = []
 
 	def on_connect(self):
@@ -53,7 +53,7 @@ class my_node_service(rpyc.Service):
 		print('disconnected')
 
 	def exposed_get_node(self, client_tag):
-		new_node = my_node(client_tag)
+		new_node = node(client_tag)
 		self.nodelist.append(new_node)
 		return new_node
 
@@ -69,7 +69,7 @@ if __name__=='__main__':
 	try:
 		print("Starting threads...")
 		print("Starting rpyc server")
-		t1 = ThreadedServer(my_node_service,hostname="127.0.0.1", port=18861,protocol_config={"allow_public_attrs": True})
+		t1 = ThreadedServer(node_service,hostname="127.0.0.1", port=18861,protocol_config={"allow_public_attrs": True})
 		thread.start_new_thread(t1.start,())
 		'''
 		t1 = ThreadedServer(my_node_service,hostname="127.0.0.1", port=18861,protocol_config={"allow_public_attrs": True})
